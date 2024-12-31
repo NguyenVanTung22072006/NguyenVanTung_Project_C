@@ -17,6 +17,7 @@ void adminMenu();
 void addUser();
 void displayAllUsers();
 void searchUser();
+void searchUserById();
 //void toggleUserStatus();
 int isUnique(char id[], char email[], char phone[]);
 int main(){
@@ -38,7 +39,7 @@ void mainMenu(){
 
         switch(choice){
             case 1:
-                login();
+                adminMenu();
                 break;
             case 2:
                 printf("\nChua Them Chuc Nang\n");
@@ -51,21 +52,21 @@ void mainMenu(){
         }
     }
 }
-void login(){
-    char email[50], password[50];
-    printf("\n*** User Management System ***\n");
-    printf("               LOGIN\n");
-    printf("      ========================\n");
-    printf("      Email: ");
-    scanf("%s", email);
-    printf("      Password: ");
-    scanf("%s", password);
-    if(strcmp(email, "admin@gmail.com")==0 && strcmp(password, "admin")==0){
-        adminMenu();
-    }else{
-        printf("Email hoac mat khau khong hop le\n");
-    }
-}
+//void login(){
+//    char email[50], password[50];
+//    printf("\n*** User Management System ***\n");
+//    printf("               LOGIN\n");
+//    printf("      ========================\n");
+//    printf("      Email: ");
+//    scanf("%s", email);
+//    printf("      Password: ");
+//    scanf("%s", password);
+//    if(strcmp(email, "admin@gmail.com")==0 && strcmp(password, "admin")==0){
+//        adminMenu();
+//    }else{
+//        printf("Email hoac mat khau khong hop le\n");
+//    }
+//}
 void adminMenu(){
     int choice;
     while(1){
@@ -76,6 +77,7 @@ void adminMenu(){
         printf("      [2] Show ALL Users\n");
         printf("      [3] Search Users\n");
 //        printf("      [4] Lock/Unlock A User\n");
+        printf("      [5] Search Users By Id\n");
         printf("      [0] Exit\n");
         printf("      ========================\n");
         printf("      Enter Your Choice: ");
@@ -93,6 +95,9 @@ void adminMenu(){
 //            case 4:
 //                toggleUserStatus();
 //                break;
+            case 5:
+            	searchUserById();
+            	break;
             case 0:
                 return;
             default:
@@ -101,12 +106,7 @@ void adminMenu(){
     }
 }
 void addUser(){
-//	FILE *file;
-//	flie=fopen("user.bin","wb");
-//	
-//	
-	
-   if(userCount>=100){
+    if(userCount>=100) {
         printf("Danh Sach Da Day\n");
         return;
     }
@@ -114,7 +114,7 @@ void addUser(){
     printf("Enter user ID: ");
     scanf("%s", newUser.id);
     printf("Enter user name: ");
-    while (getchar()!='\n');
+    while(getchar()!='\n');
     scanf(" %[^\n]", newUser.name);
     printf("Enter user email: ");
     scanf("%s", newUser.email);
@@ -122,14 +122,40 @@ void addUser(){
     scanf("%s", newUser.phone);
     printf("Status (Open/Lock): ");
     scanf("%s", newUser.status);
-    if(isUnique(newUser.id, newUser.email, newUser.phone)){
+    if (isUnique(newUser.id, newUser.email, newUser.phone)){
         users[userCount++]=newUser;
+        FILE *file; 
+		file=fopen("user.txt","a");
+        if (file == NULL) {
+            printf("Loi: Khong the mo file de ghi\n");
+            return;
+        }
+        fprintf(file, "%s,%s,%s,%s,%s\n", newUser.id, newUser.name, newUser.email, newUser.phone, newUser.status);
+        fclose(file);
         printf("Them Thanh Cong\n");
-    }else {
+    }else{
         printf("Loi: ID hoac Email Hoac Phone Bi Trung. Nguoi Dung Khong Duoc Them Vao\n");
     }
 }
 void displayAllUsers(){
+    FILE *file = fopen("user.txt","r");
+    if(file==NULL){
+        printf("Khong The Mo File user.txt\n");
+        return;
+    }
+    while(fscanf(file, "%[^,],%[^,],%[^,],%[^,],%s\n",
+                  users[userCount].id,
+                  users[userCount].name,
+                  users[userCount].email,
+                  users[userCount].phone,
+                  users[userCount].status) == 5){
+        userCount++;
+        if(userCount>=100){
+            printf("Danh Sach Da Day\n");
+            break;
+        }
+    }
+    fclose(file);
     if(userCount==0){
         printf("Khong Co Nguoi Dung\n");
         return;
@@ -182,6 +208,27 @@ void searchUser(){
 //    }
 //    printf("Khong Tim Thay ID Nguoi Dung\n");
 //}
+void searchUserById(){
+    char searchId[50];
+    printf("Nhap ID De Tim Kiem: ");
+    while(getchar()!='\n');
+    scanf(" %[^\n]", searchId);
+    int found=0;
+    printf("\n----------------------------------------------------------------------------------\n");
+    printf("| %-10s | %-20s | %-20s | %-10s | %-5s |\n", "ID", "Name", "Email", "Phone", "Status");
+    printf("----------------------------------------------------------------------------------\n");
+    for(int i=0; i<userCount; i++){
+        if(strstr(users[i].id, searchId)!=NULL){
+            found=1;
+            printf("| %-10s | %-20s | %-20s | %-10s | %-5s |\n",
+                   users[i].id, users[i].name, users[i].email, users[i].phone, users[i].status);
+        }
+    }
+    printf("---------------------------------------------------------------------------------\n");
+    if(!found){
+        printf("Khong Tim Thay Nguoi Dung ID %s\n", searchId);
+    }
+}
 int isUnique(char id[], char email[], char phone[]){
     for(int i=0; i<userCount; i++){
         if(strcmp(users[i].id, id)==0 || strcmp(users[i].email, email)==0 || strcmp(users[i].phone, phone)==0){
