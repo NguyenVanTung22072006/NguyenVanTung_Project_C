@@ -136,17 +136,17 @@ void addUser(){
     if (!isUserInfoNotEmpty(newUser.id, newUser.name, newUser.email, newUser.phone)){
         return;
     }
-    if (isUserInfoValid(newUser.id, newUser.name, newUser.phone) && isUnique(newUser.id, newUser.email, newUser.phone)) {
+    if (isUserInfoValid(newUser.id, newUser.name, newUser.phone) && isUnique(newUser.id, newUser.email, newUser.phone)){
         users[userCount++] = newUser;
         FILE *file = fopen("user.txt", "a");
-        if (file == NULL) {
+        if(file==NULL){
             printf("Loi: Khong the mo file de ghi\n");
             return;
         }
         fprintf(file, "%s,%s,%s,%s,%s\n", newUser.id, newUser.name, newUser.email, newUser.phone, newUser.status);
         fclose(file);
         printf("Them Thanh Cong\n");
-    } else {
+    }else{
         printf("Loi: ID hoac Email Hoac Phone Bi Trung. Nguoi Dung Khong Duoc Them Vao\n");
     }
 }
@@ -284,14 +284,14 @@ int isUserInfoValid(char id[], char name[], char phone[]){
     if(strlen(id)<2 || strlen(id)>5 || 
         strlen(name)<=3 ||
         strlen(phone)!=10){
-        printf("Thong tin khong hop le. ID nguoi dung phai dai 2-5 ky tu, Ten phai nhieu hon 3 ky tu, So dien thoai phai dai 10 ky tu.\n");
+        printf("\nThong tin khong hop le. ID nguoi dung phai dai 2-5 ky tu, Ten phai nhieu hon 3 ky tu, So dien thoai phai dai 10 ky tu.\n");
         return 0;
     }
     return 1;
 }
-int isUserInfoNotEmpty(char id[], char name[], char email[], char phone[]) {
-    if (strlen(id) == 0 || strlen(name) == 0 || strlen(email) == 0 || strlen(phone) == 0) {
-        printf("Thong tin nguoi dung khong duoc de trong. Vui long nhap lai.\n");
+int isUserInfoNotEmpty(char id[], char name[], char email[], char phone[]){
+    if(strlen(id)==0 || strlen(name)==0 || strlen(email)==0 || strlen(phone)==0){
+        printf("\nThong tin nguoi dung khong duoc de trong\n");
         return 0;
     }
     return 1;
