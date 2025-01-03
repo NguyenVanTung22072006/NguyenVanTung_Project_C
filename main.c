@@ -18,8 +18,8 @@ void addUser();
 void displayAllUsers();
 void searchUser();
 void searchUserById();
-//void arrangeUser();
-//void toggleUserStatus();
+void arrangeUser();
+void toggleUserStatus();
 int isUnique(char id[], char email[], char phone[]);
 int main(){
     mainMenu();
@@ -40,9 +40,11 @@ void mainMenu(){
 
         switch(choice){
             case 1:
+            	system("cls");
                 loginAdmin();
                 break;
             case 2:
+            	system("cls");
                 printf("\nChua Them Chuc Nang\n");
                 break;
             case 0:
@@ -77,27 +79,37 @@ void adminMenu(){
         printf("      [1] Add A New User\n");
         printf("      [2] Show ALL Users\n");
         printf("      [3] Search Users\n");
-//        printf("      [4] Lock/Unlock A User\n");
+        printf("      [4] Lock/Unlock A User\n");
         printf("      [5] Search Users By Id\n");
+        printf("      [6] Arrange\n");
         printf("      [0] Exit\n");
         printf("      ========================\n");
         printf("      Enter Your Choice: ");
         scanf("%d", &choice);
         switch (choice){
             case 1:
+            	system("cls");
                 addUser();
                 break;
             case 2:
+            	system("cls");
                 displayAllUsers();
                 break;
             case 3:
+            	system("cls");
                 searchUser();
                 break;
-//            case 4:
-//                toggleUserStatus();
-//                break;
+            case 4:
+            	system("cls");
+                toggleUserStatus();
+                break;
             case 5:
+            	system("cls");
             	searchUserById();
+            	break;
+            case 6:
+            	system("cls");
+            	arrangeUser();
             	break;
             case 0:
                 return;
@@ -204,24 +216,35 @@ void searchUser(){
         printf("Khong Tim Thay Nguoi Dung '%s'\n", searchName);
     }
 }
-//void toggleUserStatus(){
-//    char userId[15];
-//    printf("Nhap ID Nguoi Dung De Lock/Unlock: ");
-//    scanf("%s", userId);
-//    for(int i=0; i<userCount; i++){
-//        if(strcmp(users[i].id, userId)==0){
-//            if(strcmp(users[i].status, "Open")==0){
-//                strcpy(users[i].status, "Lock");
-//                printf("User %s Hien Da Bi Khoa\n", users[i].name);
-//            }else{
-//                strcpy(users[i].status, "Open");
-//                printf("User %s Hien Da Duoc Mo Khoa\n", users[i].name);
-//            }
-//            return;
-//        }
-//    }
-//    printf("Khong Tim Thay ID Nguoi Dung\n");
-//}
+void toggleUserStatus(){
+    char userId[15];
+    printf("Nhap ID Nguoi Dung De Lock/Unlock: ");
+    scanf("%s", userId);
+    for(int i=0; i<userCount; i++){
+        if(strcmp(users[i].id, userId)==0){
+            if(strcmp(users[i].status, "Open")==0){
+                strcpy(users[i].status, "Lock");
+                printf("User %s Hien Da Bi Khoa\n", users[i].name);
+            }else{
+                strcpy(users[i].status, "Open");
+                printf("User %s Hien Da Duoc Mo Khoa\n", users[i].name);
+            }
+            FILE *file;
+			file=fopen("user.txt", "w");
+            if(file == NULL){
+                printf("Khong the mo file de ghi\n");
+                return;
+            }
+            for(int j=0; j<userCount; j++){
+                fprintf(file, "%s,%s,%s,%s,%s\n",
+                        users[j].id, users[j].name, users[j].email, users[j].phone, users[j].status);
+            }
+            fclose(file);
+            return;
+        }
+    }
+    printf("Khong Tim Thay ID Nguoi Dung\n");
+}
 void searchUserById(){
     char searchId[50];
     printf("Nhap ID De Tim Kiem: ");
@@ -243,35 +266,60 @@ void searchUserById(){
         printf("Khong Tim Thay Nguoi Dung ID %s\n", searchId);
     }
 }
-//void arrangeUser(){
-//	char arrange[20];
-//	while(1){
-//		printf("\n*** User Management System ***\n");
-//        printf("            Menu Sap Xep\n");
-//        printf("      ========================\n");
-//        printf("      [6.1] Tu Lon Den Be");
-//        printf("      [6.1] Tu Lon Den Be");
-//	}
-//}
-
-
-//void loginUser(){
-//    char email[50], password[50];
-//    printf("\n*** User Management System ***\n");
-//    printf("               LOGIN\n");
-//    printf("      ========================\n");
-//    printf("      Email: ");
-//    scanf("%s", email);
-//    printf("      Password: ");
-//    scanf("%s", password);
-//    if(strcmp(email, "admin@gmail.com")==0 && strcmp(password, "admin")==0){
-//        adminMenu();
-//    }else{
-//        printf("Email hoac mat khau khong hop le\n");
-//    }
-//}
-
-
+void arrangeUser(){
+    displayAllUsers();
+    if(userCount==0){
+        printf("Danh sach nguoi dung trong. Khong co gi de sap xep.\n");
+        return;
+    }
+    int thuTu;
+    printf("\nChon thu tu sap xep:\n");
+    printf("[1] Tang dan (A-Z)\n");
+    printf("[2] Giam dan (Z-A)\n");
+    printf("Nhap lua chon cua ban: ");
+    scanf("%d", &thuTu);
+    if(thuTu!=1 && thuTu!=2){
+        printf("Lua chon khong hop le. Quay lai menu.\n");
+        return;
+    }
+    for(int i=0; i<userCount-1; i++){
+        for(int j=i+1; j<userCount; j++){
+            if((thuTu == 1 && strcmp(users[i].name, users[j].name) > 0) || (thuTu == 2 && strcmp(users[i].name, users[j].name) < 0)){
+                User temp = users[i];
+                users[i] = users[j];
+                users[j] = temp;
+            }
+        }
+    }
+    printf("Da sap xep danh sach theo ten\n");
+    FILE *file; 
+	file=fopen("user.txt", "w");
+    if(file==NULL){
+        printf("Khong the mo file de ghi\n");
+        return;
+    }
+    for(int i=0; i<userCount; i++){
+        fprintf(file, "%s,%s,%s,%s,%s\n",
+                users[i].id, users[i].name, users[i].email, users[i].phone, users[i].status);
+    }
+    fclose(file);
+    userCount=0;
+    file=fopen("user.txt", "r");
+    if(file==NULL){
+        printf("Khong the mo file user.txt\n");
+        return;
+    }
+    while(fscanf(file, "%[^,],%[^,],%[^,],%[^,],%s\n",
+                  users[userCount].id,
+                  users[userCount].name,
+                  users[userCount].email,
+                  users[userCount].phone,
+                  users[userCount].status)==5){
+        userCount++;
+    }
+    fclose(file);
+    displayAllUsers();
+}
 int isUnique(char id[], char email[], char phone[]){
     for(int i=0; i<userCount; i++){
         if(strcmp(users[i].id, id)==0 || strcmp(users[i].email, email)==0 || strcmp(users[i].phone, phone)==0){
@@ -296,3 +344,4 @@ int isUserInfoNotEmpty(char id[], char name[], char email[], char phone[]){
     }
     return 1;
 }
+
